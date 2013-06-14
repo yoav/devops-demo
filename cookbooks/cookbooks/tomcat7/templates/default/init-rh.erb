@@ -1,0 +1,54 @@
+#!/bin/bash  
+# description: Tomcat Start Stop Restart  
+# processname: tomcat  
+# chkconfig: 234 20 80  
+PATH=/bin:/usr/bin:/sbin:/usr/sbin::<%= node[:tomcat7][:home] %>/bin
+# The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
+# defined in $DEFAULT)
+JDK_DIRS="/usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-1.5.0-sun /usr/lib/j2sdk1.5-sun /usr/lib/j2sdk1.5-ibm"
+
+# Look for the right JVM to use
+for jdir in $JDK_DIRS; do
+if [ -r "$jdir/bin/java" -a -z "${JAVA_HOME}" ]; then
+JAVA_HOME="$jdir"
+    fi
+done
+export JAVA_HOME
+
+# Directory where the Tomcat 7 binary distribution resides
+CATALINA_HOME=<%= node[:tomcat7][:home] %>
+
+# Directory for per-instance configuration files and webapps
+CATALINA_BASE=<%= node[:tomcat7][:base] %>
+
+# Use the Java security manager? (yes/no)
+TOMCAT7_SECURITY=<%= node[:tomcat7][:use_security_manager] %>
+
+export CATALINA_PID=/var/run/tomcat/catalina.pid
+
+PATH=$JAVA_HOME/bin:$PATH
+export PATH
+
+export JAVA_OPTS="<%= @args %>"
+
+export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12345 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+export LD_LIBRARY_PATH=/usr/local/apr/lib:$LD_LIBRARY_PATH
+
+case $1 in
+    start)
+        /bin/su -s /bin/bash -c "$CATALINA_HOME/bin/startup.sh" bt-int
+    ;;
+    stop)
+	/bin/su -s /bin/bash -c "$CATALINA_HOME/bin/shutdown.sh -force" bt-int
+    ;;
+    restart)  
+	/bin/su -s /bin/bash -c "$CATALINA_HOME/bin/shutdown.sh -force" bt-int
+	/bin/su -s /bin/bash -c "$CATALINA_HOME/bin/startup.sh" bt-int
+    ;;
+    status)
+        if ! [ -f $CATALINA_PID ]; then echo "pid file not found"; exit 1; fi
+        if ps -p `cat $CATALINA_PID` -o comm= > /dev/null; then echo Tomcat is running; else echo Tomcat is not running; fi
+    ;;
+esac
+exit 0

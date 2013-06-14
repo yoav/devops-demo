@@ -1,0 +1,16 @@
+# Recursive
+target
+build
+DS_Store
+.gradle
+.vagrant
+*.class
+*.iml
+*.ipr
+*.iws
+cobertura.ser
+DS_Store
+.DS_Store
+.gradle
+out
+.idea/
