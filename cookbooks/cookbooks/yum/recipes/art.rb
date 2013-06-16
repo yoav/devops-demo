@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+artip = node['artip']
 template "/etc/yum.repos.d/art.repo" do
   source "art.erb"
+  variables ({ :artip => artip})
 end

@@ -13,8 +13,8 @@ ruby_block "deploy latest version: #{my_env}" do
  block do
 name =  "frockyIII-#{my_env}.war"
 fname = "workspace-1.0-SNAPSHOT.war"
-base_url   = "http://192.168.1.127:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT"
-search_url = "http://192.168.1.127:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT/#{fname};#{propFilter}"
+base_url   = "http://#{node['artip']}:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT"
+search_url = "http://#{node['artip']}:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT/#{fname};#{propFilter}"
 headers_file = "/tmp/headers.txt"
 dest_file = "/tmp/#{name}"
 
@@ -23,10 +23,12 @@ get_headers_cmd = "curl -sI \"#{search_url}\" > #{headers_file}"
 
 last_fname = %x( grep 'X-Artifactory-Filename:' #{headers_file} | awk '{print $2}' ).chomp
 last_chks = %x( grep 'X-Checksum-Sha1:' #{headers_file} | awk '{print $2}' ).chomp
-cur_chks = %x(sha1sum #{node[:tomcat7][:base]}/webapps/#{name} | awk '{print $1}').chomp
 
-if last_chks == cur_chks
- puts "INFO: No new version was found. Skipping upgrade."
+#if File.exists?("#{node[:tomcat7][:base]}/webapps/#{name}")
+cur_chks = %x(sha1sum #{node[:tomcat7][:base]}/webapps/#{name} | awk '{print $1}').chomp
+ if last_chks == cur_chks
+  puts "INFO: No new version was found. Skipping upgrade."
+# end
 else
 download_url = "#{base_url}/#{last_fname}"
 
@@ -40,7 +42,7 @@ f.retries 3
 FileUtils.rm_rf("#{node[:tomcat7][:base]}/webapps/frockyIII-#{my_env}")
 FileUtils.cp(dest_file, "#{node[:tomcat7][:base]}/webapps/")
 FileUtils.chown 'bt-int', 'bt-int', "#{node[:tomcat7][:base]}/webapps/#{name}"
-%x(service tomcat7 restart)
+system('if [ "ps -ef | grep -v grep | grep tomcat" ]; then service tomcat7 restart; else service tomcat7 start; fi')
 end
  end
  action :create
