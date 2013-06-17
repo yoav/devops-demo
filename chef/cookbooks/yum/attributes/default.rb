@@ -31,4 +31,5 @@ default['yum']['epel_release'] = case node['platform_version'].to_i
                                     "4-10"
                                   end
 default['yum']['ius_release'] = '1.0-8'
-default['artip'] = '10.0.0.165'
+default['art_host'] = 'repo-demo'
+default['art_port'] = '9090'

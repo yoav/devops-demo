@@ -13,8 +13,8 @@ ruby_block "deploy latest version: #{my_env}" do
  block do
 name =  "frockyIII-#{my_env}.war"
 fname = "workspace-1.0-SNAPSHOT.war"
-base_url   = "http://#{node['artip']}:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT"
-search_url = "http://#{node['artip']}:8081/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT/#{fname};#{propFilter}"
+base_url   = "http://#{node['art_host']}:#{node['art_port']}/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT"
+search_url = "http://#{node['art_host']}:#{node['art_port']}/artifactory/cloud-deploy-local/frockyIII/workspace/1.0-SNAPSHOT/#{fname};#{propFilter}"
 headers_file = "/tmp/headers.txt"
 dest_file = "/tmp/#{name}"
 

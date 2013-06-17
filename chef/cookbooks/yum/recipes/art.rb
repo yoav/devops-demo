@@ -18,8 +18,9 @@
 # limitations under the License.
 #
 
-artip = node['artip']
+art_host = node['art_host']
+art_port = node['art_port']
 template "/etc/yum.repos.d/art.repo" do
   source "art.erb"
-  variables ({ :artip => artip})
+  variables ({ :art_host => art_host, :art_port => art_port})
 end

@@ -1,18 +1,32 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+$script = <<SCRIPT
+echo Addign the repo-demo host to /etc/hosts
+echo "10.0.2.2 repo-demo" > /etc/hosts
+SCRIPT
+
 Vagrant.configure("2") do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "frockyIII"
-  config.vm.hostname = "frockyIII"
+  config.vm.box = "frocky"
+  config.vm.hostname = "frocky"
+  # To remove: vagrant box remove frocky virtualbox
+
+  config.vm.provider "virtualbox" do |v|
+    #v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    #v.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+  end
+  
+  config.vm.provision :shell, :inline => $script
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://repo-demo:8081/artifactory/devops-repo/boxes/CentOS-6.4-x86_64-v20130427.box"
+  # **************
+  config.vm.box_url = "http://repo-demo:9090/artifactory/devops-repo/boxes/CentOS-6.4-x86_64-v20130427.box"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -77,18 +91,20 @@ Vagrant.configure("2") do |config|
   # path, and data_bags path (all relative to this Vagrantfile), and adding
   # some recipes and/or roles.
   #
-   config.vm.provision :chef_solo do |chef|
-     chef.cookbooks_path = "../cookbooks/cookbooks"
-     chef.roles_path = "../cookbooks/roles"
-     chef.data_bags_path = "../cookbooks/data_bags"
-     chef.add_recipe "yum::art"
-     chef.add_recipe "tomcat7::deploy"
-  #   chef.add_role "bt_int"
-  #
-  #   # You may also specify custom JSON attributes:
-  #   chef.json = { :mysql_password => "foo" }
-     chef.json = { :my_env => "production"}
-   end
+  # **************
+  config.vm.provision :chef_solo do |chef|
+      chef.cookbooks_path = "chef/cookbooks"
+      chef.roles_path = "chef/roles"
+      chef.data_bags_path = "chef/data_bags"
+      chef.add_recipe "yum::art"
+      chef.add_recipe "tomcat7::deploy"
+
+      #   chef.add_role "bt_int"
+      #
+      #   # You may also specify custom JSON attributes:
+      #   chef.json = { :mysql_password => "foo" }
+      chef.json = { :my_env => "production"}
+  end
 
   # Enable provisioning with chef server, specifying the chef server URL,
   # and the path to the validation key (relative to this Vagrantfile).
