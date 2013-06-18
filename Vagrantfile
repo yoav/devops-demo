@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 $script = <<SCRIPT
-echo Addign the repo-demo host to /etc/hosts
+echo Adding the repo-demo host to /etc/hosts
 echo "10.0.2.2 repo-demo" > /etc/hosts
 SCRIPT
 
@@ -103,7 +103,10 @@ Vagrant.configure("2") do |config|
       #
       #   # You may also specify custom JSON attributes:
       #   chef.json = { :mysql_password => "foo" }
-      chef.json = { :my_env => "production"}
+      # Set to staging or production
+      env = ENV['ENV'] || 'staging'
+      puts "*** Deploying #{env} environment ***"
+      chef.json = { :my_env => env }
   end
 
   # Enable provisioning with chef server, specifying the chef server URL,
